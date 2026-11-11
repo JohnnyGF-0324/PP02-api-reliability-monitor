@@ -3,19 +3,38 @@ import json
 total_checks = 0
 successful_checks = 0
 
-target_url = input('Input a target URL:\n')
-
 successful_duration_total = 0
+
+saved_urls = set()
+all_results = []
 
 with open("run_history.jsonl", "r") as file:
     for line in file:
         run_results = json.loads(line)
         for result in run_results:
-            if result["url"] == target_url:
-                total_checks += 1
-                if result["ok"] == True:
-                    successful_checks += 1
-                    successful_duration_total += result["check_duration"]
+            saved_urls.add(result['url'])
+            all_results.append(result)
+
+print("Saved URLs")
+
+url_options = sorted(saved_urls)
+for num, url in enumerate(url_options, start=1):
+    print(f'{num}. {url}')
+
+try:
+    choice = int(input('Input an option number:\n'))
+except ValueError:
+    raise SystemExit('Enter a whole number.')
+if choice not in range(1, len(url_options)+1):
+    raise SystemExit(f'Choose a number from 1 to {len(url_options)}.')
+
+target_url = url_options[choice-1]
+for result in all_results:
+    if result["url"] == target_url:
+        total_checks += 1
+        if result["ok"] == True:
+            successful_checks += 1
+            successful_duration_total += result["check_duration"]    
 
 if total_checks > 0:
     success_rate = (successful_checks/total_checks)*100
