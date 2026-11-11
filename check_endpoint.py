@@ -1,6 +1,7 @@
 import urllib.request as r
 import urllib.error as e
 import time as t
+from datetime import datetime as d, timezone as tz
 import json
 
 def check_endpoint(page_url):
@@ -46,6 +47,8 @@ failure_count = 0
 
 results = []
 
+run_timestamp = d.now(tz.utc).isoformat()
+
 for url in url_list:
     request_time = t.perf_counter()
     result = check_endpoint(url)
@@ -53,6 +56,7 @@ for url in url_list:
     check_duration = (get_time - request_time) * 1000
     result['check_duration'] = check_duration
     result['url'] = url
+    result['checked_at'] = run_timestamp
     results.append(result)
     if result["ok"]:
         success_count += 1
