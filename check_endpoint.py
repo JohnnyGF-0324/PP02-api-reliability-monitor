@@ -64,7 +64,6 @@ for url in url_list:
         failure_count += 1
     print(f'\nPage URL: {url}\nStatus: {result['message']}\nCheck duration: {check_duration:.1f}ms\n')
 print(f'Summary: {success_count} successful, {failure_count} failed.')
-print(json.dumps(results))
 
 with open("latest_run.json", "w") as file:
     json.dump(results, file, indent=2)
