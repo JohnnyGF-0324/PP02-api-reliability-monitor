@@ -3,6 +3,7 @@ import urllib.error as e
 import time as t
 from datetime import datetime as d, timezone as tz
 import json
+import sqlite3 as sql
 
 
 def check_endpoint(page_url):
@@ -87,3 +88,23 @@ with open("latest_run.json", "w") as file:
 # Append the whole run as one JSON line. The newline separates it from the next run.
 with open("run_history.jsonl", "a") as file:
     file.write(json.dumps(results) + '\n')
+
+connection = sql.connect("monitor.db")
+create_table_sql = '''CREATE TABLE IF NOT EXISTS checks(id INTEGER PRIMARY KEY, url TEXT, checked_at TEXT, ok INTEGER, status_code INTEGER, check_duration REAL, message TEXT)'''
+
+connection.execute(create_table_sql)
+insert_check_sql = '''INSERT INTO checks(url, checked_at, ok, status_code, check_duration, message) VALUES(?, ?, ?, ?, ?, ?)'''
+
+for result in results:
+    values = (
+        result["url"],
+        result["checked_at"],
+        result["ok"],
+        result["status_code"],
+        result["check_duration"],
+        result["message"]
+    )
+    connection.execute(insert_check_sql, values)
+
+connection.commit()
+connection.close()
